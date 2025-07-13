@@ -130,6 +130,51 @@ app.get('/currently-playing', async (req, res) => {
   }
 });
 
+app.put('/start-resume', async (req, res) => {
+    try {
+        await axios.put(`${BaseUrl}/v1/me/player/play`, {}, {
+        headers: {
+            Authorization: `Bearer ${ACCESS_TOKEN}`,
+        },
+        });
+        res.send('Playback started/resumed');
+    } catch (error) {
+        console.error('Error starting/resuming playback:', error.response?.data || error.message);
+        res.status(500).send('Error starting/resuming playback');
+    }
+    });
+
+app.put('/pause', async (req, res) => {
+    try {
+        await axios.put(`${BaseUrl}/v1/me/player/pause`, {}, {
+            headers: {
+                Authorization: `Bearer ${ACCESS_TOKEN}`,
+            },
+        });
+        res.send('Playback paused');
+    } catch (error) {
+        console.error('Error pausing playback:', error.response?.data || error.message);
+        res.status(500).send('Error pausing playback');
+    }
+});
+
+app.put('/play/:id', async (req, res) => {
+  const id = req.params.id; // only ID, not full URI
+  const uri = `spotify:track:${id}`;
+  try {
+    await axios.put(
+      `${BaseUrl}/v1/me/player/play`,
+      { uris: [uri] },
+      {
+        headers: { Authorization: `Bearer ${ACCESS_TOKEN}` },
+      }
+    );
+    res.send(`Now playing track: ${id}`);
+  } catch (error) {
+    console.error('Error playing track:', error.response?.data || error.message);
+    res.status(500).send('Error playing selected track');
+  }
+});
 
 
 app.listen(PORT, () => {
