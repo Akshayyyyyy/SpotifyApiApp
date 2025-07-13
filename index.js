@@ -107,6 +107,30 @@ app.get('/tracks', async (req, res) => {
   }
 });
 
+app.get('/currently-playing', async (req, res) => {
+  try {
+    const response = await axios.get(`${BaseUrl}/v1/me/player/currently-playing`, {
+      headers: {
+        Authorization: `Bearer ${ACCESS_TOKEN}`,
+      },
+    });
+
+    if (response.data && response.data.item) {
+      res.json({
+        name: response.data.item.name,
+        artist: response.data.item.artists.map(artist => artist.name).join(', '),
+        album: response.data.item.album.name,
+      });
+    } else {
+      res.status(204).send('No track currently playing');
+    }
+  } catch (error) {
+    console.error('Error fetching currently playing track:', error.response?.data || error.message);
+    res.status(500).send('Error fetching currently playing track');
+  }
+});
+
+
 
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
